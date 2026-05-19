@@ -1221,5 +1221,19 @@
       "finalTermWeight": 0.5
     }
   }
+,
+  {
+  "courseCode": "SS004",
+  "courseNameEn": "None",
+  "courseNameVi": "Kỹ năng nghề nghiệp",
+  "courseType": "ĐC",
+  "credits": 2,
+  "defaultWeights": {
+    "progressWeight": 0.5,
+    "practiceWeight": 0,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.5
+  },
+  "description": ""
+}
 ]
-
