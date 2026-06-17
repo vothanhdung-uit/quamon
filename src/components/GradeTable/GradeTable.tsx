@@ -129,51 +129,64 @@ const GradeTable: React.FC<GradeTableProps> = ({
       </thead>
 
       <tbody>
-        {semesters.map((sem, si) => (
-          <SemesterBlock
-            key={sem.id || `sem-${si}`}
-            semester={sem}
-            semesterIndex={si}
-            semesters={semesters}
-            setSemesters={setSemesters}
-            gpaScale={gpaScale}
-            updateSubjectField={updateSubjectField}
-            updateSubjectExpectedScore={updateSubjectExpectedScore} 
-            deleteSemester={deleteSemester}
-            deleteSubject={deleteSubject}
-            openAdvancedModal={openAdvancedModal}
-            semesterMenuOpen={semesterMenuOpen}
-            setSemesterMenuOpen={setSemesterMenuOpen}
-            addDropdownOpen={addDropdownOpen}
-            setAddDropdownOpen={setAddDropdownOpen}
-            addSearchTerm={addSearchTerm}
-            setAddSearchTerm={setAddSearchTerm}
-            addSearchResults={addSearchResults}
-            addExpandedCategories={addExpandedCategories}
-            setAddExpandedCategories={setAddExpandedCategories}
-            openMenu={openMenu}
-            setOpenMenu={setOpenMenu}
-            editDropdownOpen={editDropdownOpen}
-            setEditDropdownOpen={setEditDropdownOpen}
-            editSearchTerm={editSearchTerm}
-            setEditSearchTerm={setEditSearchTerm}
-            editSearchResults={editSearchResults}
-            editExpandedCategories={editExpandedCategories}
-            setEditExpandedCategories={setEditExpandedCategories}
-          />
-        ))}
+  {semesters.map((sem) => {
+    // Tự động sắp xếp lại danh sách môn học của từng học kỳ theo thứ tự A-Z của mã môn học
+    const sortedSubjects = [...sem.subjects].sort((a: any, b: any) => {
+      const codeA = (a.courseCode || "").toString().toUpperCase();
+      const codeB = (b.courseCode || "").toString().toUpperCase();
+      return codeA.localeCompare(codeB, 'en', { sensitivity: 'base' });
+    });
 
-        <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
-        <SummaryRows 
-          semesters={semesters}
-          cumulativeExpected={cumulativeExpected}
-          onApplyExpectedOverall={handleApplyExpectedOverall}
-          onSetCumulativeExpected={setCumulativeExpected}
-          isCumulativeManual={isCumulativeManual}
-          setIsCumulativeManual={setIsCumulativeManual}
-          gpaScale={gpaScale}
-        />
-      </tbody>
+    // Trả về đối tượng học kỳ mới chứa danh sách môn học đã được sắp xếp gọn gàng
+    return {
+      ...sem,
+      subjects: sortedSubjects
+    };
+  }).map((sem, si) => (
+    <SemesterBlock
+      key={sem.id || `sem-${si}`}
+      semester={sem}
+      semesterIndex={si}
+      semesters={semesters}
+      setSemesters={setSemesters}
+      gpaScale={gpaScale}
+      updateSubjectField={updateSubjectField}
+      updateSubjectExpectedScore={updateSubjectExpectedScore} 
+      deleteSemester={deleteSemester}
+      deleteSubject={deleteSubject}
+      openAdvancedModal={openAdvancedModal}
+      semesterMenuOpen={semesterMenuOpen}
+      setSemesterMenuOpen={setSemesterMenuOpen}
+      addDropdownOpen={addDropdownOpen}
+      setAddDropdownOpen={setAddDropdownOpen}
+      addSearchTerm={addSearchTerm}
+      setAddSearchTerm={setAddSearchTerm}
+      addSearchResults={addSearchResults}
+      addExpandedCategories={addExpandedCategories}
+      setAddExpandedCategories={setAddExpandedCategories}
+      openMenu={openMenu}
+      setOpenMenu={setOpenMenu}
+      editDropdownOpen={editDropdownOpen}
+      setEditDropdownOpen={setEditDropdownOpen}
+      editSearchTerm={editSearchTerm}
+      setEditSearchTerm={setEditSearchTerm}
+      editSearchResults={editSearchResults}
+      editExpandedCategories={editExpandedCategories}
+      setEditExpandedCategories={setEditExpandedCategories}
+    />
+  ))}
+
+  <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+  <SummaryRows 
+    semesters={semesters}
+    cumulativeExpected={cumulativeExpected}
+    onApplyExpectedOverall={handleApplyExpectedOverall}
+    onSetCumulativeExpected={setCumulativeExpected}
+    isCumulativeManual={isCumulativeManual}
+    setIsCumulativeManual={setIsCumulativeManual}
+    gpaScale={gpaScale}
+  />
+</tbody>
     </table>
     </>
   );
