@@ -81,7 +81,25 @@ const GradeTable: React.FC<GradeTableProps> = ({
   const handleApplyExpectedOverall = (updatedSemesters: Semester[]) => {
     setSemesters(updatedSemesters);
   };
-
+// --- CHÈN ĐOẠN CODE NÀY VÀO NGAY ĐÂY ---
+const handleInsertSemester = (index: number) => {
+  setSemesters((prevSemesters) => {
+    const next = [...prevSemesters];
+    // Tạo cấu trúc học kỳ mới
+    const newSemester: Semester = {
+      id: `sem-${self.crypto.randomUUID()}`,
+      name: `Học kỳ ${next.length + 1} (Bổ sung)`,
+      subjects: [],
+      expectedAverage: "",
+      isExpectedAverageManual: false,
+    };
+    
+    // Sử dụng splice để chèn học kỳ vào đúng vị trí chỉ định (sau vị trí index)
+    next.splice(index + 1, 0, newSemester);
+    return next;
+  });
+};
+// ----------------------------------------
   return (
     <>
       {/* GPA Scale Selector */}
@@ -130,50 +148,76 @@ const GradeTable: React.FC<GradeTableProps> = ({
 
       <tbody>
   {semesters.map((sem) => {
-    // Tự động sắp xếp lại danh sách môn học của từng học kỳ theo thứ tự A-Z của mã môn học
+    // Logic sort A-Z mã môn giữ nguyên của câu trước
     const sortedSubjects = [...sem.subjects].sort((a: any, b: any) => {
       const codeA = (a.courseCode || "").toString().toUpperCase();
       const codeB = (b.courseCode || "").toString().toUpperCase();
       return codeA.localeCompare(codeB, 'en', { sensitivity: 'base' });
     });
-
-    // Trả về đối tượng học kỳ mới chứa danh sách môn học đã được sắp xếp gọn gàng
-    return {
-      ...sem,
-      subjects: sortedSubjects
-    };
+    return { ...sem, subjects: sortedSubjects };
   }).map((sem, si) => (
-    <SemesterBlock
-      key={sem.id || `sem-${si}`}
-      semester={sem}
-      semesterIndex={si}
-      semesters={semesters}
-      setSemesters={setSemesters}
-      gpaScale={gpaScale}
-      updateSubjectField={updateSubjectField}
-      updateSubjectExpectedScore={updateSubjectExpectedScore} 
-      deleteSemester={deleteSemester}
-      deleteSubject={deleteSubject}
-      openAdvancedModal={openAdvancedModal}
-      semesterMenuOpen={semesterMenuOpen}
-      setSemesterMenuOpen={setSemesterMenuOpen}
-      addDropdownOpen={addDropdownOpen}
-      setAddDropdownOpen={setAddDropdownOpen}
-      addSearchTerm={addSearchTerm}
-      setAddSearchTerm={setAddSearchTerm}
-      addSearchResults={addSearchResults}
-      addExpandedCategories={addExpandedCategories}
-      setAddExpandedCategories={setAddExpandedCategories}
-      openMenu={openMenu}
-      setOpenMenu={setOpenMenu}
-      editDropdownOpen={editDropdownOpen}
-      setEditDropdownOpen={setEditDropdownOpen}
-      editSearchTerm={editSearchTerm}
-      setEditSearchTerm={setEditSearchTerm}
-      editSearchResults={editSearchResults}
-      editExpandedCategories={editExpandedCategories}
-      setEditExpandedCategories={setEditExpandedCategories}
-    />
+    <React.Fragment key={sem.id || `sem-${si}`}>
+      <SemesterBlock
+        semester={sem}
+        semesterIndex={si}
+        semesters={semesters}
+        setSemesters={setSemesters}
+        gpaScale={gpaScale}
+        updateSubjectField={updateSubjectField}
+        updateSubjectExpectedScore={updateSubjectExpectedScore} 
+        deleteSemester={deleteSemester}
+        deleteSubject={deleteSubject}
+        openAdvancedModal={openAdvancedModal}
+        semesterMenuOpen={semesterMenuOpen}
+        setSemesterMenuOpen={setSemesterMenuOpen}
+        addDropdownOpen={addDropdownOpen}
+        setAddDropdownOpen={setAddDropdownOpen}
+        addSearchTerm={addSearchTerm}
+        setAddSearchTerm={setAddSearchTerm}
+        addSearchResults={addSearchResults}
+        addExpandedCategories={addExpandedCategories}
+        setAddExpandedCategories={setAddExpandedCategories}
+        openMenu={openMenu}
+        setOpenMenu={setOpenMenu}
+        editDropdownOpen={editDropdownOpen}
+        setEditDropdownOpen={setEditDropdownOpen}
+        editSearchTerm={editSearchTerm}
+        setEditSearchTerm={setEditSearchTerm}
+        editSearchResults={editSearchResults}
+        editExpandedCategories={editExpandedCategories}
+        setEditExpandedCategories={setEditExpandedCategories}
+      />
+      
+      {/* Thêm một hàng nút bấm nhỏ xen kẽ giữa các học kỳ */}
+      <tr>
+        <td colSpan={10} style={{ padding: '4px 0', textAlign: 'center' }}>
+          <button
+            type="button"
+            onClick={() => handleInsertSemester(si)}
+            style={{
+              padding: "4px 12px",
+              fontSize: "11px",
+              backgroundColor: "rgba(99, 102, 241, 0.1)",
+              color: "#6366f1",
+              border: "1px dashed #6366f1",
+              borderRadius: "4px",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = "#6366f1";
+              e.currentTarget.style.color = "white";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(99, 102, 241, 0.1)";
+              e.currentTarget.style.color = "#6366f1";
+            }}
+          >
+            + Chèn học kỳ mới vào đây
+          </button>
+        </td>
+      </tr>
+    </React.Fragment>
   ))}
 
   <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
