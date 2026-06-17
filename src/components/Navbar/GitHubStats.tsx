@@ -5,7 +5,7 @@ const GitHubStats: React.FC = () => {
 
   useEffect(() => {
     // Keep existing API fetches
-    fetch('https://api.github.com/repos/SVUIT/quamon')
+    fetch('https://api.github.com/repos/vothanhdung-uit/quamon')
       .then(res => res.json())
       .then(data => {
         setStats(prev => ({
@@ -16,7 +16,7 @@ const GitHubStats: React.FC = () => {
       })
       .catch(() => console.log("GitHub API bận"));
 
-    fetch('https://api.github.com/repos/SVUIT/quamon/releases/latest')
+    fetch('https://api.github.com/repos/vothanhdung-uit/quamon/releases/latest')
       .then(res => res.json())
       .then(data => {
         if (data.tag_name) setStats(prev => ({ ...prev, version: data.tag_name }));
@@ -26,7 +26,7 @@ const GitHubStats: React.FC = () => {
 
   return (
     <a 
-      href="https://github.com/SVUIT/quamon" 
+      href="https://github.com/vothanhdung-uit/quamon" 
       target="_blank" 
       rel="noopener noreferrer"
       style={{
@@ -52,7 +52,7 @@ const GitHubStats: React.FC = () => {
       </svg>
       
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
-        <span style={{ fontWeight: 800, fontSize: '11px' }}>SVUIT/quamon</span>
+        <span style={{ fontWeight: 800, fontSize: '11px' }}>vothanhdung-uit/quamon</span>
         
         {/* Repository statistics */}
         <div style={{ display: 'flex', gap: '4px', fontSize: '10px', opacity: 0.7, alignItems: 'center' }}>
