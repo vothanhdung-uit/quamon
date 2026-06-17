@@ -233,14 +233,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
 
       localStorage.removeItem("pendingPR");
 
-      if (data.url) {
-        if (newTab) {
-          newTab.location.href = data.url;
-        } else {
-          window.open(data.url, "_blank");
-        }
-        alert(`PR đã tạo thành công!\n${data.url}`);
-      }
+      // Thông báo trực tiếp ra màn hình mà không cần link URL bốc hơi
+    alert("Môn học đã được lưu vĩnh viễn vào kho GitHub của bạn!\nHệ thống đang tự động cập nhật lại trang web (mất khoảng 1 phút), vui lòng F5 sau ít phút nhé.");
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Có lỗi xảy ra khi tạo PR");
@@ -270,8 +264,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ onAdd, existingSubjects
       return;
     }
 
-    const newTab = window.open("", "_blank");
-    await createPR(courseObj, newTab);
+    await createPR(courseObj);
   };
 
   useEffect(() => {
