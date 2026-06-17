@@ -1266,4 +1266,19 @@
   },
   "description": "Khoa Kỹ thuật Máy tính phụ trách"
 }
+,
+  {
+  "courseCode": "CE103",
+  "courseNameEn": "Microprocessors and Microcontrollers",
+  "courseNameVi": "Vi xử lý-vi điều khiển",
+  "courseType": "CSN",
+  "credits": 4,
+  "defaultWeights": {
+    "progressWeight": 0.30,
+    "practiceWeight": 0.20,
+    "midtermWeight": 0,
+    "finalTermWeight": 0.5
+  },
+  "description": "Khoa Kỹ thuật Máy tính phụ trách"
+}
 ]
