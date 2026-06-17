@@ -128,9 +128,11 @@ const GradeTable: React.FC<GradeTableProps> = ({
       </thead>
 
       <tbody>
-          <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+  {/* 1. Nút thêm học kỳ ở ĐẦU BẢNG (Trước tất cả học kỳ) */}
+  <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+
   {semesters.map((sem) => {
-    // Logic sort A-Z mã môn giữ nguyên của câu trước
+    // Logic sort A-Z mã môn giữ nguyên
     const sortedSubjects = [...sem.subjects].sort((a: any, b: any) => {
       const codeA = (a.courseCode || "").toString().toUpperCase();
       const codeB = (b.courseCode || "").toString().toUpperCase();
@@ -139,6 +141,7 @@ const GradeTable: React.FC<GradeTableProps> = ({
     return { ...sem, subjects: sortedSubjects };
   }).map((sem, si) => (
     <React.Fragment key={sem.id || `sem-${si}`}>
+      {/* Khối hiển thị học kỳ hiện tại */}
       <SemesterBlock
         semester={sem}
         semesterIndex={si}
@@ -169,10 +172,17 @@ const GradeTable: React.FC<GradeTableProps> = ({
         editExpandedCategories={editExpandedCategories}
         setEditExpandedCategories={setEditExpandedCategories}
       />
+      
+      {/* 2. Nút thêm học kỳ ở GIỮA BẢNG (Xen kẽ xuất hiện ngay sau học kỳ vừa lặp qua) */}
+      {si < semesters.length - 1 && (
+        <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+      )}
     </React.Fragment>
   ))}
 
+  {/* 3. Nút thêm học kỳ ở CUỐI BẢNG (Giữ nguyên) */}
   <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+  
   <SummaryRows 
     semesters={semesters}
     cumulativeExpected={cumulativeExpected}
