@@ -1,5 +1,19 @@
 [
   {
+    "courseCode": "CE005",
+    "courseNameEn": "Introduction to Computer Engineering",
+    "courseNameVi": "Giới thiệu ngành Kỹ Thuật Máy tính",
+    "courseType": "ĐC",
+    "credits": 1,
+    "defaultWeights": {
+      "progressWeight": 0.5,
+      "practiceWeight": 0,
+      "midtermWeight": 0,
+      "finalTermWeight": 0.5
+    },
+    "description": ""
+  },
+  {
     "courseCode": "CE119",
     "courseNameEn": "Computer Architecture Laboratory",
     "courseNameVi": "Thực hành Kiến trúc máy tính",
