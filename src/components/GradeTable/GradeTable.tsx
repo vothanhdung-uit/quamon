@@ -81,25 +81,6 @@ const GradeTable: React.FC<GradeTableProps> = ({
   const handleApplyExpectedOverall = (updatedSemesters: Semester[]) => {
     setSemesters(updatedSemesters);
   };
-// --- CHÈN ĐOẠN CODE NÀY VÀO NGAY ĐÂY ---
-const handleInsertSemester = (index: number) => {
-  setSemesters((prevSemesters) => {
-    const next = [...prevSemesters];
-    // Tạo cấu trúc học kỳ mới
-    const newSemester: Semester = {
-      id: `sem-${self.crypto.randomUUID()}`,
-      name: `Học kỳ ${next.length + 1} (Bổ sung)`,
-      subjects: [],
-      expectedAverage: "",
-      isExpectedAverageManual: false,
-    };
-    
-    // Sử dụng splice để chèn học kỳ vào đúng vị trí chỉ định (sau vị trí index)
-    next.splice(index + 1, 0, newSemester);
-    return next;
-  });
-};
-// ----------------------------------------
   return (
     <>
       {/* GPA Scale Selector */}
@@ -147,6 +128,7 @@ const handleInsertSemester = (index: number) => {
       </thead>
 
       <tbody>
+          <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
   {semesters.map((sem) => {
     // Logic sort A-Z mã môn giữ nguyên của câu trước
     const sortedSubjects = [...sem.subjects].sort((a: any, b: any) => {
@@ -187,36 +169,6 @@ const handleInsertSemester = (index: number) => {
         editExpandedCategories={editExpandedCategories}
         setEditExpandedCategories={setEditExpandedCategories}
       />
-      
-      {/* Thêm một hàng nút bấm nhỏ xen kẽ giữa các học kỳ */}
-      <tr>
-        <td colSpan={10} style={{ padding: '4px 0', textAlign: 'center' }}>
-          <button
-            type="button"
-            onClick={() => handleInsertSemester(si)}
-            style={{
-              padding: "4px 12px",
-              fontSize: "11px",
-              backgroundColor: "rgba(99, 102, 241, 0.1)",
-              color: "#6366f1",
-              border: "1px dashed #6366f1",
-              borderRadius: "4px",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = "#6366f1";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(99, 102, 241, 0.1)";
-              e.currentTarget.style.color = "#6366f1";
-            }}
-          >
-            + Chèn học kỳ mới vào đây
-          </button>
-        </td>
-      </tr>
     </React.Fragment>
   ))}
 
