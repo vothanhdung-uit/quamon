@@ -4,97 +4,78 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Nhận dữ liệu JSON từ Form gửi lên (Chuẩn App Router)
+    // 1. Nhận dữ liệu JSON từ giao diện gửi lên
     const body = await req.json();
-    const { courseCode, courseNameVi, credits, defaultWeights, category } = body;
+    const { courseCode, courseNameVi, courseNameEn, courseType, credits, defaultWeights, description } = body;
 
     if (!courseCode || !courseNameVi || !credits) {
       return NextResponse.json({ message: 'Thiếu thông tin môn học bắt buộc!' }, { status: 400 });
     }
 
-    // Định dạng môn học mới theo chuẩn cấu hình của SVUIT
+    // 2. Định dạng cấu trúc môn học mới khít 100% với file courses_weighted.json của SVUIT
     const newSubjectData = {
       courseCode: courseCode.trim().toUpperCase(),
+      courseNameEn: courseNameEn ? courseNameEn.trim() : "",
       courseNameVi: courseNameVi.trim(),
+      courseType: courseType || "ĐC",
       credits: parseInt(credits, 10) || 3,
       defaultWeights: defaultWeights || {
         progressWeight: 0.2,
         practiceWeight: 0.2,
         midtermWeight: 0.2,
         finalTermWeight: 0.4
-      }
+      },
+      description: description ? description.trim() : ""
     };
 
-    // Xác định phân loại học phần
-    const targetCategory = category || "Khác";
-
-    // 2. Lấy thông tin cấu hình từ biến môi trường Vercel
+    // 3. Cấu hình đường dẫn chính xác tới file JSON trên GitHub cá nhân của bạn
     const GITHUB_TOKEN = process.env.MY_GITHUB_TOKEN;
     const OWNER = 'vothanhdung-uit'; 
     const REPO = 'quamon';
-    const FILE_PATH = 'src/constants.ts'; 
+    const FILE_PATH = 'src/assets/courses_weighted.json'; // Đã sửa đường dẫn chuẩn theo SVUIT
 
     if (!GITHUB_TOKEN) {
       return NextResponse.json({ message: 'Chưa cấu hình biến MY_GITHUB_TOKEN trên Vercel!' }, { status: 500 });
     }
 
-    // 3. Gọi GitHub API để lấy file constants.ts hiện tại về
+    // 4. Gọi GitHub API để lấy nội dung file JSON hiện tại về
     const getFileRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
       headers: { Authorization: `Bearer ${GITHUB_TOKEN}` },
       cache: 'no-store'
     });
 
     if (!getFileRes.ok) {
-      return NextResponse.json({ message: 'Không thể kết nối lấy file từ GitHub. Kiểm tra lại Repo name hoặc Token.' }, { status: 500 });
+      return NextResponse.json({ message: 'Không thể lấy file JSON từ GitHub. Kiểm tra lại Repo hoặc Token.' }, { status: 500 });
     }
 
     const fileData = await getFileRes.json();
-    const oldContent = Buffer.from(fileData.content, 'base64').toString('utf-8');
+    const oldContentStr = Buffer.from(fileData.content, 'base64').toString('utf-8');
     const fileSha = fileData.sha;
 
-    // 4. XỬ LÝ CHÈN MÔN HỌC BẰNG REGEX VÀ PARSE OBJECT
-    const match = oldContent.match(/export\s+const\s+SUBJECTS_DATA\s*:\s*Record<string,\s*any>|any\[\]\s*=\s*([\s\S]*?);/);
-    
-    let updatedContent = "";
-
-    if (match) {
-      const startIndex = oldContent.indexOf('{', oldContent.indexOf('SUBJECTS_DATA'));
-      const endIndex = oldContent.indexOf('};', startIndex) + 1;
-      const objectText = oldContent.substring(startIndex, endIndex);
-      
-      let subjectsObj: Record<string, any> = {};
-      try {
-        subjectsObj = new Function(`return ${objectText};`)();
-      } catch (e) {
-        subjectsObj = {};
+    // 5. XỬ LÝ MẢNG JSON (Cực kỳ an toàn, không lo lỗi cú pháp)
+    let coursesArray: any[] = [];
+    try {
+      coursesArray = JSON.parse(oldContentStr);
+      if (!Array.isArray(coursesArray)) {
+        coursesArray = [];
       }
-
-      if (!subjectsObj[targetCategory]) {
-        subjectsObj[targetCategory] = [];
-      }
-
-      const isExist = subjectsObj[targetCategory].some((item: any) => item.courseCode === newSubjectData.courseCode);
-      if (!isExist) {
-        subjectsObj[targetCategory].unshift(newSubjectData);
-      } else {
-        return NextResponse.json({ success: true, message: 'Môn học này đã tồn tại sẵn trong hệ thống rồi!' });
-      }
-
-      const newObjectText = JSON.stringify(subjectsObj, null, 2);
-      updatedContent = oldContent.substring(0, startIndex) + newObjectText + oldContent.substring(endIndex);
-    } else {
-      const arrayStartIndex = oldContent.indexOf('[', oldContent.indexOf('SUBJECTS_DATA'));
-      if (arrayStartIndex !== -1) {
-        updatedContent = oldContent.replace(
-          'export const SUBJECTS_DATA = [',
-          `export const SUBJECTS_DATA = [\n  ${JSON.stringify(newSubjectData, null, 2)},`
-        );
-      } else {
-        throw new Error("Không thể phân tích cấu trúc file constants.ts của SVUIT.");
-      }
+    } catch (e) {
+      coursesArray = [];
     }
 
-    // 5. Đẩy (Commit) nội dung file mới đè thẳng lên GitHub cá nhân của bạn
+    // Kiểm tra trùng mã môn học để tránh chèn lặp dữ liệu
+    const isExist = coursesArray.some((item: any) => item.courseCode === newSubjectData.courseCode);
+    if (!isExist) {
+      // Chèn môn học mới lên đầu danh sách mảng JSON
+      coursesArray.unshift(newSubjectData);
+    } else {
+      return NextResponse.json({ success: true, message: 'Môn học này đã tồn tại sẵn trong file hệ thống của bạn rồi!' });
+    }
+
+    // Chuyển mảng Object ngược lại thành chuỗi string JSON định dạng đẹp
+    const updatedContentStr = JSON.stringify(coursesArray, null, 2);
+
+    // 6. Đẩy (Commit) nội dung JSON mới đè thẳng lên GitHub cá nhân của bạn
     const updateFileRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
       method: 'PUT',
       headers: {
@@ -102,18 +83,18 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: `feat: Tự động thêm môn ${newSubjectData.courseNameVi} (${newSubjectData.courseCode}) qua giao diện Web`,
-        content: Buffer.from(updatedContent, 'utf-8').toString('base64'),
-        sha: fileSha,
+        message: `feat: Tự động thêm môn ${newSubjectData.courseNameVi} (${newSubjectData.courseCode}) vào file JSON`,
+        content: Buffer.from(updatedContentStr, 'utf-8').toString('base64'),
+        sha: fileSha, // Truyền SHA cũ để được quyền ghi đè hợp lệ
         branch: 'main'
       })
     });
 
     if (updateFileRes.ok) {
-      return NextResponse.json({ success: true, message: 'Đã lưu môn học vĩnh viễn vào Repo cá nhân thành công!' });
+      return NextResponse.json({ success: true, message: 'Đã lưu môn học vĩnh viễn vào file JSON thành công!' });
     } else {
       const errorData = await updateFileRes.json();
-      return NextResponse.json({ error: errorData, message: 'Lỗi khi đẩy file lên GitHub.' }, { status: 500 });
+      return NextResponse.json({ error: errorData, message: 'Lỗi khi đẩy file JSON lên GitHub.' }, { status: 500 });
     }
 
   } catch (error: any) {
