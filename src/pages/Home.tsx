@@ -1112,23 +1112,34 @@ export default function Home() {
               }
             >
               <AddSubjectForm
-                onAdd={(newSubject: Subject) => {
-                  setSemesters((prev: Semester[]) => {
-                    const next = [...prev];
-                    if (next.length === 0) {
-                      next.push({
-                        id: `sem-${self.crypto.randomUUID()}`,
-                        name: "Học kỳ 1",
-                        subjects: [newSubject],
-                      });
-                    } else {
-                      next[next.length - 1].subjects.push(newSubject);
-                    }
-                    return next;
-                  });
-                  setActiveTab("grades");
-                }}
-              />
+  onAdd={(newSubject: Subject) => {
+    setSemesters((prev: Semester[]) => {
+      const next = [...prev];
+      if (next.length === 0) {
+        next.push({
+          id: `sem-${self.crypto.randomUUID()}`,
+          name: "Học kỳ 1",
+          subjects: [newSubject],
+        });
+      } else {
+        // 1. Thêm môn học vào học kỳ cuối cùng
+        next[next.length - 1].subjects.push(newSubject);
+      }
+
+      // 2. SẮP XẾP LẠI MẢNG GỐC CỦA TẤT CẢ HỌC KỲ THEO MÃ MÔN A-Z
+      next.forEach((sem) => {
+        sem.subjects.sort((a, b) => {
+          const codeA = (a.courseCode || "").toString().toUpperCase();
+          const codeB = (b.courseCode || "").toString().toUpperCase();
+          return codeA.localeCompare(codeB, 'en', { sensitivity: 'base' });
+        });
+      });
+
+      return next;
+    });
+    setActiveTab("grades");
+  }}
+/>
             </Suspense>
           )}
           {activeTab === "graduation_check" && (
