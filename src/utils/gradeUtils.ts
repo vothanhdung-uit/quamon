@@ -190,6 +190,9 @@ export const normalizeScore = (value: string, scale: GpaScale = "10"): string =>
 };
 
 export const calcRequiredScores = (subj: Subject, expected: number, scale: GpaScale = "10"): Partial<Subject> => {
+  // Nếu là môn được miễn thì không tính toán điểm cần đạt nữa
+  if (isExemptCourse(subj)) return {};
+
   const fields: (keyof Subject)[] = ["progressScore", "midtermScore", "practiceScore", "finalScore"];
   const weightFields: (keyof Subject)[] = ["progressWeight", "midtermWeight", "practiceWeight", "finalWeight"];
   const minFields: (keyof Subject)[] = ["minProgressScore", "minMidtermScore", "minPracticeScore", "minFinalScore"];
