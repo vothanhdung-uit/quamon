@@ -81,6 +81,28 @@ const GradeTable: React.FC<GradeTableProps> = ({
   const handleApplyExpectedOverall = (updatedSemesters: Semester[]) => {
     setSemesters(updatedSemesters);
   };
+  // Thêm đoạn này vào bên trong component GradeTable, ngay trên lệnh return ()
+React.useEffect(() => {
+  let hasChanged = false;
+  
+  semesters.forEach((sem) => {
+    // Kiểm tra xem mảng môn học hiện tại đã xếp đúng thứ tự A-Z chưa
+    const currentOrder = sem.subjects.map(s => s.courseCode).join(",");
+    const sortedOrder = [...sem.subjects]
+      .sort((a, b) => (a.courseCode || "").toString().toUpperCase().localeCompare((b.courseCode || "").toString().toUpperCase()))
+      .map(s => s.courseCode)
+      .join(",");
+      
+    if (currentOrder !== sortedOrder) {
+      sem.subjects.sort((a, b) => (a.courseCode || "").toString().toUpperCase().localeCompare((b.courseCode || "").toString().toUpperCase()));
+      hasChanged = true;
+    }
+  });
+
+  if (hasChanged) {
+    setSemesters([...semesters]);
+  }
+}, [semesters, setSemesters]);
   return (
     <>
       {/* GPA Scale Selector */}
