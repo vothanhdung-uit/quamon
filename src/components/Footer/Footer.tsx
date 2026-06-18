@@ -4,7 +4,8 @@ const Footer: React.FC = () => {
   return (
     <footer className="footer flex flex-col items-center justify-center py-10 gap-6 text-white w-full">
       <h2 className="text-xl font-bold tracking-wide uppercase m-0">
-        STUDY VAULT OF UIT
+        PERSONALIZE BY VO THANH DUNG
+        BASED ON STUDY VAULT OF UIT
       </h2>
 
       <div className="footer-icons flex gap-6 items-center">
