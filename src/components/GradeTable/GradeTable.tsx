@@ -150,8 +150,27 @@ React.useEffect(() => {
       </thead>
 
       <tbody>
-  {/* Nút thêm học kỳ ở ĐẦU BẢNG */}
-  <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
+  {/* Nút thêm học kỳ ở ĐẦU BẢNG (Đã được bọc hàm ép chèn vào đầu bảng) */}
+  <AddSemesterRow 
+    semesters={semesters} 
+    setSemesters={(updater) => {
+      setSemesters((prevSemesters) => {
+        // Lấy mảng dữ liệu mới sau khi nút gốc của SVUIT đã xử lý (học kỳ mới nằm ở cuối mảng)
+        const updated = typeof updater === 'function' ? updater(prevSemesters) : updater;
+        
+        // Bốc học kỳ mới tinh ở cuối mảng ra
+        const newSemester = updated[updated.length - 1];
+        
+        // Tạo một mảng sạch từ mảng cũ ban đầu
+        const next = [...prevSemesters];
+        
+        // Dùng lệnh unshift để ép học kỳ mới này đứng vào VỊ TRÍ ĐẦU TIÊN (Index 0)
+        next.unshift(newSemester);
+        
+        return next;
+      });
+    }} 
+  />
 
   {/* KHÔI PHỤC ĐOẠN NÀY: Duyệt mảng semesters trực tiếp không qua sort trung gian */}
   {semesters.map((sem, si) => (
@@ -187,9 +206,30 @@ React.useEffect(() => {
         setEditExpandedCategories={setEditExpandedCategories}
       />
       
-      {si < semesters.length - 1 && (
-        <AddSemesterRow semesters={semesters} setSemesters={setSemesters} />
-      )}
+      {/* 2. Nút thêm học kỳ ở GIỮA BẢNG (Đã được bọc hàm chèn đúng vị trí) */}
+{si < semesters.length - 1 && (
+  <AddSemesterRow 
+    semesters={semesters} 
+    setSemesters={(updater) => {
+      // Hàm này "đánh lừa" nút bấm của SVUIT
+      setSemesters((prevSemesters) => {
+        // Lấy mảng semesters mới mà component AddSemesterRow vừa tạo ra (môn mới nằm ở cuối mảng)
+        const updated = typeof updater === 'function' ? updater(prevSemesters) : updater;
+        
+        // Bốc cái học kỳ mới tinh bị ném ở cuối mảng đó ra...
+        const newSemester = updated[updated.length - 1];
+        
+        // ... tạo một mảng sạch từ mảng cũ ban đầu
+        const next = [...prevSemesters];
+        
+        // ... rồi dùng lệnh splice để chèn chính xác vào ngay sau học kỳ hiện tại (vị trí si + 1)
+        next.splice(si + 1, 0, newSemester);
+        
+        return next;
+      });
+    }} 
+  />
+)}
     </React.Fragment>
   ))}
 
