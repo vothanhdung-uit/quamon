@@ -67,21 +67,16 @@ export const validateScoreForScale = (value: number, scale: GpaScale): boolean =
 
 // ================== CHECK EXEMPT COURSE =======================
 export const isExemptCourse = (subject: Subject): boolean => {
-  // Check if course name contains "Mien" (case insensitive)
-  const courseName = subject.courseName?.toLowerCase() || "";
-  const courseCode = subject.courseCode?.toLowerCase() || "";
+  // 1. Lấy dữ liệu chữ từ cột Điểm kỳ vọng (Chuyển về chữ thường để so sánh không phân biệt hoa thường)
+  const expectedScoreText = (subject.expectedScore || "").toString().toLowerCase().trim();
   
-  // Check for "mien" in name or code
-  if (courseName.includes("mien") || courseCode.includes("mien")) {
+  // 2. Nếu cột Điểm kỳ vọng chứa chữ "mien", xác định đây là môn học ĐƯỢC MIỄN
+  if (expectedScoreText.includes("mien")) {
     return true;
   }
   
-  // Check for specific exempt English courses
-  const exemptEnglishCourses = ["eng01", "eng02", "eng03", "eng04", "eng05"];
-  if (exemptEnglishCourses.includes(courseCode)) {
-    return true;
-  }
-  
+  // Bạn có thể giữ hoặc bỏ điều kiện quét tên môn cũ tùy ý, 
+  // nhưng để kiểm soát 100% bằng tay qua cột Điểm kỳ vọng, chúng ta chỉ cần return về false ở dưới:
   return false;
 };
 
